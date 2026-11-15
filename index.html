@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>皮衣之下 · LEATHER COUP</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23050807'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%238dff3a' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#04060a;
+    --panel:#080e0b;
+    --panel-2:#0b1410;
+    --line:#1e3327;
+    --line-soft:#16241b;
+    --neon:#8dff3a;
+    --neon-deep:#4e8f24;
+    --cyan:#22e3ff;
+    --magenta:#ff2e6a;
+    --amber:#ffc247;
+    --violet:#a06bff;
+    --ink:#d7e8d4;
+    --ink-soft:#93a898;
+    --muted:#5f7666;
+    --mono:"Courier New", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans:"Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(141,255,58,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(141,255,58,.055) 1px, transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 30%, #000 0%, transparent 78%);
+    mask-image:radial-gradient(ellipse at 50% 30%, #000 0%, transparent 78%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(58% 42% at 14% 0%, rgba(48,124,58,.28), transparent 70%),
+      radial-gradient(50% 38% at 92% 8%, rgba(16,120,150,.20), transparent 70%),
+      radial-gradient(55% 50% at 60% 108%, rgba(150,28,88,.14), transparent 70%);
+  }
+
+  .scanlines{
+    position:fixed;inset:0;z-index:9998;pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(0,0,0,.20) 0 1px, transparent 1px 3px);
+    opacity:.55;
+    animation:flicker 6s infinite steps(1);
+  }
+  @keyframes flicker{
+    0%,97%,100%{opacity:.55}
+    97.5%{opacity:.38}
+    98%{opacity:.62}
+    98.5%{opacity:.45}
+  }
+
+  #app{
+    position:relative;z-index:2;
+    max-width:1180px;margin:0 auto;
+    padding:22px 18px 48px;
+  }
+
+  .screen{display:none}
+  .screen.is-active{display:block;animation:fadeUp .4s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .hidden{display:none !important}
+
+  /* ---------- 通用零件 ---------- */
+  .eyebrow{
+    font-family:var(--mono);font-size:10px;letter-spacing:.34em;
+    color:var(--muted);text-transform:uppercase;
+  }
+  .clip-corners{
+    position:relative;
+  }
+  .clip-corners::before,.clip-corners::after{
+    content:"";position:absolute;width:16px;height:16px;
+    border:2px solid var(--neon);opacity:.85;pointer-events:none;
+  }
+  .clip-corners::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+  .clip-corners::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+
+  .btn{
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink);
+    background:transparent;border:1px solid #2b4433;
+    padding:12px 20px;cursor:pointer;
+    transition:transform .12s, box-shadow .18s, background .18s, color .18s, border-color .18s;
+  }
+  .btn:hover{transform:translateY(-2px);border-color:var(--neon);color:#eaffe0;box-shadow:0 0 22px rgba(141,255,58,.18)}
+  .btn:active{transform:translateY(0)}
+  .btn-primary{
+    background:linear-gradient(180deg,#b0ff6b,#6fdc1f);
+    border-color:#9dff4f;color:#071004;font-weight:700;
+    box-shadow:0 0 26px rgba(141,255,58,.34);
+  }
+  .btn-primary:hover{filter:brightness(1.08);box-shadow:0 0 46px rgba(141,255,58,.55);color:#071004}
+  .btn-ghost{font-size:11px;padding:10px 14px;color:var(--ink-soft)}
+  .btn-danger{border-color:var(--magenta);color:#ffd3e0;background:rgba(255,46,106,.08)}
+  .btn-danger:hover{border-color:var(--magenta);box-shadow:0 0 26px rgba(255,46,106,.3);color:#fff}
+
+  /* ---------- 标题页 ---------- */
+  #screen-title{text-align:center;padding-top:16px}
+  .title-shell{max-width:760px;margin:0 auto}
+  .title{
+    font-size:clamp(48px,10vw,104px);line-height:1.02;font-weight:900;
+    letter-spacing:.1em;color:#f2ffe9;
+    text-shadow:0 0 14px rgba(141,255,58,.85), 0 0 60px rgba(141,255,58,.28);
+    margin:8px 0 2px;
+    position:relative;
+  }
+  .title span{color:var(--neon)}
+  .title::before,.title::after{
+    content:attr(data-text);position:absolute;inset:0;
+    opacity:.35;pointer-events:none;
+  }
+  .title::before{color:var(--cyan);transform:translate(2px,-1px);mix-blend-mode:screen;opacity:.5;animation:chroma 5s infinite steps(1)}
+  .title::after{color:var(--magenta);transform:translate(-2px,1px);mix-blend-mode:screen;opacity:.4;animation:chroma 5s infinite steps(1) reverse}
+  @keyframes chroma{
+    0%,92%,100%{opacity:.28}
+    93%{opacity:.55;transform:translate(3px,-2px)}
+    94%{opacity:.2}
+    95%{opacity:.5;transform:translate(-3px,2px)}
+  }
+  .title-en{
+    font-family:var(--mono);letter-spacing:.62em;font-size:clamp(10px,1.6vw,13px);
+    color:#7fae5b;margin:6px 0 18px;padding-left:.62em;
+  }
+  .title-portrait{
+    width:170px;margin:12px auto 20px;position:relative;
+    filter:drop-shadow(0 0 26px rgba(141,255,58,.35));
+    animation:float 5s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .title-portrait svg{width:100%;display:block;image-rendering:pixelated}
+  .title-portrait::after{
+    content:"";position:absolute;inset:auto 0 -10px;height:12px;
+    background:radial-gradient(ellipse at center, rgba(141,255,58,.45), transparent 70%);
+    filter:blur(4px);
+  }
+  .blurb{font-size:14.5px;line-height:2;color:#b6c9b9;margin:0 auto 26px;max-width:520px}
+  .blurb b{color:var(--neon)}
+  .title-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:26px}
+  .disclaimer{font-size:11px;color:#4d6355;line-height:1.8;letter-spacing:.02em}
+
+  /* ---------- HUD ---------- */
+  .hud{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;
+    padding:11px 14px;margin-bottom:14px;
+    border:1px solid var(--line-soft);
+    background:linear-gradient(180deg, rgba(10,20,14,.92), rgba(5,9,7,.92));
+    box-shadow:inset 0 0 40px rgba(141,255,58,.04), 0 12px 40px rgba(0,0,0,.5);
+  }
+  .hud-brand{
+    display:flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#7f9a86;
+    white-space:nowrap;
+  }
+  .hud-brand .dot{
+    width:7px;height:7px;background:var(--neon);border-radius:50%;
+    box-shadow:0 0 10px var(--neon);animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .stats{display:flex;flex-wrap:wrap;gap:10px 18px;flex:1 1 520px}
+  .stat{min-width:104px;flex:1 1 110px;max-width:190px}
+  .stat-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
+  .stat-top span{font-size:10.5px;letter-spacing:.08em;color:var(--ink-soft)}
+  .stat-top b{font-family:var(--mono);font-size:14px;color:#eaf7e4;white-space:nowrap}
+  .stat-top b i{font-style:normal;font-size:9px;color:var(--muted);margin-left:1px}
+  .bar{position:relative;height:6px;background:#0d1a13;border:1px solid #1c3226}
+  .fill{height:100%;width:0%;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .fill-support{background:linear-gradient(90deg,#2f7520,#8dff3a);box-shadow:0 0 12px rgba(141,255,58,.55)}
+  .fill-stock{background:linear-gradient(90deg,#0f5f7a,#22e3ff);box-shadow:0 0 10px rgba(34,227,255,.4)}
+  .fill-alert{background:linear-gradient(90deg,#7d5510,#ff2e6a);box-shadow:0 0 12px rgba(255,46,106,.45)}
+  .tick{
+    position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amber);
+    box-shadow:0 0 8px var(--amber);transition:left .4s;
+  }
+  .stat-hint{font-size:9.5px;color:var(--muted);margin-top:5px;font-family:var(--mono);letter-spacing:.02em}
+  .hud-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .round{
+    font-family:var(--mono);font-size:15px;color:var(--neon);
+    border:1px solid #29422f;padding:5px 10px;letter-spacing:.08em;
+    white-space:nowrap;
+  }
+  .btn-mini{
+    width:30px;height:30px;background:transparent;border:1px solid #29422f;
+    color:var(--ink-soft);cursor:pointer;font-size:13px;line-height:1;
+    transition:.15s;font-family:var(--mono);
+  }
+  .btn-mini:hover{border-color:var(--neon);color:var(--neon)}
+  .btn-mini.is-off{opacity:.35;text-decoration:line-through}
+
+  .stat.bump b{animation:bump .45s ease}
+  @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+  .stat.bump b.up{color:var(--neon);text-shadow:0 0 14px rgba(141,255,58,.8)}
+  .stat.bump b.down{color:var(--magenta);text-shadow:0 0 14px rgba(255,46,106,.8)}
+
+  /* ---------- 舞台 ---------- */
+  .stage{display:grid;grid-template-columns:300px 1fr;gap:14px;margin-bottom:14px}
+  @media (max-width:820px){.stage{grid-template-columns:1fr}}
+
+  .jensen-panel{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .bubble{
+    position:relative;padding:11px 13px;min-height:70px;
+    background:linear-gradient(180deg,#0b1511,#08100c);
+    border:1px solid #27402f;
+    font-size:13px;line-height:1.65;color:#cfe3cb;
+    box-shadow:inset 0 0 30px rgba(141,255,58,.05);
+  }
+  .bubble::after{
+    content:"";position:absolute;left:26px;bottom:-6px;width:10px;height:10px;
+    background:#08100c;border-right:1px solid #27402f;border-bottom:1px solid #27402f;
+    transform:rotate(45deg);
+  }
+  .bubble .who{
+    display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+    color:var(--neon-deep);color:#5e8a44;margin-bottom:5px;
+  }
+  .photo-frame{
+    position:relative;padding:14px;
+    background:
+      radial-gradient(70% 60% at 50% 25%, rgba(141,255,58,.10), transparent 70%),
+      linear-gradient(180deg,#0a1510,#060b08);
+    border:1px solid #24402a;
+    box-shadow:0 0 0 1px #000, inset 0 0 44px rgba(141,255,58,.07), 0 14px 46px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  .photo-frame::before,.photo-frame::after{
+    content:"";position:absolute;width:20px;height:20px;border:2px solid var(--neon);
+    opacity:.75;pointer-events:none;z-index:3;
+  }
+  .photo-frame::before{top:5px;left:5px;border-right:0;border-bottom:0}
+  .photo-frame::after{bottom:5px;right:5px;border-left:0;border-top:0}
+  .portrait{position:relative;z-index:2;filter:drop-shadow(0 6px 26px rgba(0,0,0,.7))}
+  .portrait svg{width:100%;display:block;image-rendering:pixelated;shape-rendering:crispEdges}
+  .glitch-layer{
+    position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
+    background:repeating-linear-gradient(0deg, rgba(141,255,58,.10) 0 1px, transparent 1px 4px);
+    mix-blend-mode:screen;
+  }
+  .status-chip{
+    position:absolute;top:10px;right:10px;z-index:4;
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+    padding:3px 7px;color:#b9e8b0;background:rgba(6,14,9,.85);
+    border:1px solid #2d4a35;
+  }
+  .status-chip.warn{color:#ffd08a;border-color:#6d4a15}
+  .status-chip.danger{color:#ffb6c9;border-color:#7d2540;animation:pulse 1s infinite}
+  .nameplate{
+    display:flex;flex-direction:column;gap:2px;
+    padding:9px 12px;border:1px solid #24382c;background:#08100c;
+  }
+  .nameplate b{font-size:14px;letter-spacing:.06em;color:#eefbe8}
+  .nameplate span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted)}
+  .jensen-panel.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px)}
+    20%,80%{transform:translateX(4px)}
+    30%,50%,70%{transform:translateX(-6px)}
+    40%,60%{transform:translateX(6px)}
+  }
+
+  .log-panel{
+    display:flex;flex-direction:column;min-height:0;
+    border:1px solid var(--line-soft);background:linear-gradient(180deg,#08100c,#060a08);
+    max-height:430px;
+  }
+  .log-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 12px;border-bottom:1px solid var(--line-soft);
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#7f9a86;
+  }
+  .log-live{color:var(--magenta);font-size:9px;animation:pulse 1.4s infinite}
+  .log{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;scrollbar-width:thin}
+  .log::-webkit-scrollbar{width:6px}
+  .log::-webkit-scrollbar-thumb{background:#1e3327}
+  .log-foot{
+    display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:8px 12px;border-top:1px solid var(--line-soft);
+    font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:#6f8a76;
+  }
+  .log-foot #goal-line{color:#9fc08f}
+  .log-row{
+    border-left:2px solid #26382c;padding-left:9px;
+    font-size:12px;line-height:1.6;color:#9fb2a2;
+    animation:slideIn .28s ease both;
+  }
+  @keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+  .log-row b{color:#e6f6de;font-weight:600}
+  .log-row.you{border-color:var(--neon);color:#bcd6b2}
+  .log-row.him{border-color:var(--magenta);color:#dcc0c8}
+  .log-row.sys{border-color:#22362a;color:#6d8375;font-family:var(--mono);font-size:10.5px;letter-spacing:.02em}
+  .log-row.warn{border-color:var(--amber);color:#e2cb98}
+  .delta{font-family:var(--mono);font-size:11px;margin-left:4px;white-space:nowrap}
+  .delta.up{color:var(--neon)}
+  .delta.down{color:var(--magenta)}
+  .delta.mid{color:var(--amber)}
+
+  /* ---------- 行动卡 ---------- */
+  .hand-head{
+    display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    margin:4px 0 8px;font-size:11.5px;color:var(--ink-soft);
+    font-family:var(--mono);letter-spacing:.06em;
+  }
+  .hand-head b{color:#5e7a64;font-weight:400}
+  .hand{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  @media (max-width:980px){.hand{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:760px){.hand{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:340px){.hand{grid-template-columns:1fr}}
+  .card{
+    position:relative;display:flex;flex-direction:column;gap:5px;text-align:left;
+    padding:12px 12px 10px;min-height:158px;
+    background:linear-gradient(180deg,#0a120e,#070c09);
+    border:1px solid #23382b;color:var(--ink);
+    font-family:inherit;cursor:pointer;
+    transition:transform .14s, border-color .16s, box-shadow .16s, background .16s;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;width:10px;height:10px;
+    border-top:2px solid #3b6b45;border-left:2px solid #3b6b45;opacity:.7;transition:.16s;
+  }
+  .card:hover:not(.is-disabled){
+    transform:translateY(-4px);
+    border-color:var(--neon);
+    background:linear-gradient(180deg,#0d1a11,#080f0b);
+    box-shadow:0 0 0 1px rgba(141,255,58,.3), 0 14px 30px rgba(0,0,0,.6), 0 0 34px rgba(141,255,58,.13);
+  }
+  .card:hover:not(.is-disabled)::before{border-color:var(--neon);opacity:1}
+  .card.is-disabled{opacity:.34;cursor:not-allowed;filter:grayscale(.55)}
+  .card:disabled{cursor:default}
+  .card-lock{
+    position:absolute;right:8px;bottom:8px;
+    font-family:var(--mono);font-size:9px;color:#8f7b7b;letter-spacing:.1em;
+  }
+  .card-key{position:absolute;top:8px;right:9px;font-family:var(--mono);font-size:10px;color:#47604f}
+  .card-tag{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--cyan);opacity:.85}
+  .card-name{font-size:14.5px;font-weight:700;color:#e8f6e0;letter-spacing:.02em}
+  .card-desc{font-size:11px;line-height:1.55;color:#7f9486;flex:1}
+  .card-fx{display:flex;flex-wrap:wrap;gap:4px;margin-top:1px}
+  .chip{
+    font-family:var(--mono);font-size:9.5px;padding:1px 5px;
+    border:1px solid currentColor;letter-spacing:.02em;
+  }
+  .chip.good{color:#8dff3a}
+  .chip.bad{color:#ff5c88}
+  .chip.mid{color:#ffc247}
+  .card-cost{
+    margin-top:3px;padding-top:6px;border-top:1px dashed #1d3126;
+    font-family:var(--mono);font-size:10.5px;color:#c9ad62;letter-spacing:.03em;
+  }
+  .card-cost.free{color:#5f7a65}
+
+  #btn-early{margin-top:12px;width:100%;padding:14px;letter-spacing:.18em}
+
+  /* ---------- 结算页 ---------- */
+  #screen-end{padding-top:10px}
+  .end-card{
+    max-width:720px;margin:0 auto;padding:26px 26px 22px;
+    border:1px solid #2a4433;background:linear-gradient(180deg,#0a1410,#060b08);
+    box-shadow:0 0 0 1px #000, inset 0 0 70px rgba(141,255,58,.05), 0 20px 60px rgba(0,0,0,.6);
+    position:relative;
+  }
+  .end-card.lose{box-shadow:0 0 0 1px #000, inset 0 0 70px rgba(255,46,106,.07), 0 20px 60px rgba(0,0,0,.65)}
+  .end-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+  .end-title{
+    font-size:clamp(28px,5vw,44px);font-weight:900;letter-spacing:.06em;
+    color:#eeffe6;text-shadow:0 0 18px rgba(141,255,58,.5);line-height:1.15;
+  }
+  .end-card.lose .end-title{color:#ffe3ea;text-shadow:0 0 18px rgba(255,46,106,.5)}
+  .end-card.lose .rank-letter{color:var(--magenta);text-shadow:0 0 22px rgba(255,46,106,.55)}
+  .end-tag{
+    display:inline-block;margin:6px 0 16px;padding:3px 8px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+    color:var(--neon);border:1px solid rgba(141,255,58,.4);
+  }
+  .end-card.lose .end-tag{color:var(--magenta);border-color:rgba(255,46,106,.45)}
+  .end-body p{font-size:13.5px;line-height:1.95;color:#b9cdb9;margin-bottom:12px}
+  .end-body p b{color:#e9ffdf}
+  .end-body p.quote{
+    border-left:2px solid var(--neon-deep);padding-left:12px;color:#a7c79b;font-style:italic;
+  }
+  .end-stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));
+    gap:8px;margin:18px 0;padding:12px 0;border-top:1px solid #1b2d21;border-bottom:1px solid #1b2d21;
+  }
+  .end-stat{text-align:center}
+  .end-stat span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:3px}
+  .end-stat b{font-family:var(--mono);font-size:16px;color:#dff0d8}
+  .rank{display:flex;align-items:center;gap:12px;margin:14px 0 18px}
+  .rank-letter{
+    font-family:var(--mono);font-size:34px;font-weight:700;line-height:1;
+    color:var(--neon);text-shadow:0 0 22px rgba(141,255,58,.6);
+  }
+  .rank-desc{font-size:11px;color:var(--muted);line-height:1.6}
+  .new-unlock{
+    display:inline-block;margin-left:8px;padding:1px 6px;
+    font-family:var(--mono);font-size:9px;color:#071004;background:var(--neon);
+    letter-spacing:.1em;animation:pulse 1.2s infinite;
+  }
+  .end-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+  /* ---------- 弹窗 ---------- */
+  .modal{
+    position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;
+    padding:18px;background:rgba(2,5,4,.85);backdrop-filter:blur(3px);
+  }
+  .modal-card{
+    width:100%;max-width:600px;max-height:86vh;overflow:auto;
+    padding:22px;border:1px solid #2b4433;
+    background:linear-gradient(180deg,#0a1410,#060b08);
+    box-shadow:0 0 60px rgba(0,0,0,.8), inset 0 0 60px rgba(141,255,58,.04);
+  }
+  .modal-card h3{font-size:18px;letter-spacing:.06em;margin-bottom:14px;color:#eaffdf}
+  .modal-card ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:20px}
+  .modal-card li{font-size:12.5px;line-height:1.8;color:#a8bda8;padding-left:16px;position:relative}
+  .modal-card li::before{content:"▸";position:absolute;left:0;color:var(--neon);font-size:10px;top:2px}
+  .modal-card li b{color:#e3f7d8}
+  .gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+  @media (max-width:520px){.gal-grid{grid-template-columns:1fr}}
+  .gal-item{padding:10px 12px;border:1px solid #22372a;background:#08100c}
+  .gal-item span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:#4f6a57;margin-bottom:3px}
+  .gal-item b{font-size:12.5px;color:#d6e8cf}
+  .gal-item.locked{opacity:.55}
+  .gal-item.locked b{color:#5e7466;letter-spacing:.2em}
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:26px;z-index:10001;
+    transform:translate(-50%,18px);opacity:0;pointer-events:none;
+    padding:9px 16px;border:1px solid #3a5a41;background:rgba(8,16,11,.96);
+    font-family:var(--mono);font-size:11.5px;color:#d5e9cb;letter-spacing:.04em;
+    transition:opacity .2s, transform .2s;white-space:nowrap;max-width:92vw;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.bad{border-color:#7d2540;color:#ffb9cc}
+
+  @media (max-width:640px){
+    #app{padding:14px 12px 40px}
+    .title-actions .btn{flex:1 1 100%}
+    .hud{display:grid;grid-template-columns:1fr auto;gap:10px 12px;padding:10px 12px}
+    .hud-brand{grid-column:1;grid-row:1}
+    .hud-right{grid-column:2;grid-row:1;margin:0}
+    .stats{grid-column:1 / -1;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+    .stat{min-width:0;max-width:none}
+    #stat-alert{grid-column:1 / -1}
+    .portrait{display:flex;justify-content:center}
+    .portrait svg{width:auto;height:200px}
+    .log-panel{max-height:280px}
+    .hand{gap:8px}
+    .card{min-height:0}
+    .card-desc{font-size:10.5px}
+    .card-name{font-size:13.5px}
+    .hand-head #hand-hint{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+  }
+</style>
+</head>
+<body>
+<div class="scanlines" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- ========== 标题页 ========== -->
+  <section id="screen-title" class="screen is-active">
+    <div class="title-shell">
+      <p class="eyebrow">A SATIRE IN 8 QUARTERS</p>
+      <h1 class="title" data-text="皮衣之下">皮衣<span>之下</span></h1>
+      <p class="title-en">LEATHER COUP</p>
+      <div class="title-portrait" id="title-portrait"></div>
+      <p class="blurb">
+        你是英伟达董事会的一名成员。<br>
+        十年来，你一直坐在那张长桌的最边上。<br>
+        今晚，你决定让那个穿皮衣的人离开。
+      </p>
+      <div class="title-actions">
+        <button class="btn btn-primary" id="btn-start">进入董事会</button>
+        <button class="btn btn-ghost" id="btn-how">玩法</button>
+        <button class="btn btn-ghost" id="btn-gallery">结局图鉴 <b id="gal-count">0/6</b></button>
+      </div>
+      <p class="disclaimer">
+        本作为虚构讽刺小游戏，与任何真实人物、公司、事件无关。<br>
+        皮衣属于他自己。
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== 游戏页 ========== -->
+  <section id="screen-game" class="screen">
+    <header class="hud">
+      <div class="hud-brand"><span class="dot"></span>NVIDIA 董事会 · 特别会议</div>
+      <div class="stats">
+        <div class="stat" id="stat-support">
+          <div class="stat-top"><span>支持率</span><b><span id="v-support">24</span><i>%</i></b></div>
+          <div class="bar"><div class="fill fill-support" id="bar-support"></div><div class="tick" id="tick-support"></div></div>
+          <div class="stat-hint" id="hint-support">罢免门槛 60%</div>
+        </div>
+        <div class="stat" id="stat-stock">
+          <div class="stat-top"><span>股价</span><b>$<span id="v-stock">100</span></b></div>
+          <div class="bar"><div class="fill fill-stock" id="bar-stock"></div></div>
+          <div class="stat-hint" id="hint-stock">市值还算体面</div>
+        </div>
+        <div class="stat" id="stat-cash">
+          <div class="stat-top"><span>现金</span><b>¥<span id="v-cash">40</span><i>M</i></b></div>
+          <div class="stat-hint">津贴 +10 / 季度</div>
+        </div>
+        <div class="stat" id="stat-dirt">
+          <div class="stat-top"><span>黑料</span><b><span id="v-dirt">1</span><i>份</i></b></div>
+          <div class="stat-hint" id="hint-dirt">握在手里的东西</div>
+        </div>
+        <div class="stat" id="stat-alert">
+          <div class="stat-top"><span>老黄警觉</span><b><span id="v-alert">0</span><i>%</i></b></div>
+          <div class="bar"><div class="fill fill-alert" id="bar-alert"></div></div>
+          <div class="stat-hint" id="hint-alert">他还没注意到你</div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="round" id="round-label">Q1 / 8</div>
+        <button class="btn-mini" id="btn-help-game" title="玩法说明" aria-label="玩法说明">?</button>
+        <button class="btn-mini" id="btn-sound" title="音效开关" aria-label="音效开关">♪</button>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="jensen-panel" id="jensen-panel">
+        <div class="bubble">
+          <span class="who">黄仁勋 / CEO</span>
+          <span id="bubble-text">“各位，好消息：我们的芯片又不够卖了。”</span>
+        </div>
+        <div class="photo-frame">
+          <div class="status-chip" id="status-chip">状态：淡定</div>
+          <div class="portrait" id="portrait"></div>
+          <div class="glitch-layer"></div>
+        </div>
+        <div class="nameplate">
+          <b>黄仁勋</b>
+          <span>创始人 · CEO · 皮衣持有者</span>
+        </div>
+      </div>
+
+      <div class="log-panel">
+        <div class="log-head"><span>会议纪要</span><span class="log-live">● LIVE</span></div>
+        <div class="log" id="log"></div>
+        <div class="log-foot">
+          <span id="goal-line">距离罢免门槛还差 36 个点</span>
+          <span id="quarters-line">剩余 8 个季度</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hand-head">
+      <span>本季度行动 <b>（点击卡牌，或按数字键 1-7）</b></span>
+      <span id="hand-hint">一个季度只能做一件事</span>
+    </div>
+    <div class="hand" id="hand"></div>
+    <button id="btn-early" class="btn btn-danger hidden">发起临时股东会</button>
+  </section>
+
+  <!-- ========== 结算页 ========== -->
+  <section id="screen-end" class="screen">
+    <div class="end-card" id="end-card">
+      <div class="end-head">
+        <div>
+          <p class="eyebrow" id="end-code">ENDING 01 / 06</p>
+          <h2 class="end-title" id="end-title">皮衣落地</h2>
+        </div>
+        <div class="rank">
+          <span class="rank-letter" id="rank-letter">A</span>
+        </div>
+      </div>
+      <p class="end-tag" id="end-tag">罢免成功</p>
+      <div class="end-body" id="end-body"></div>
+      <div class="end-stats" id="end-stats"></div>
+      <p class="rank-desc" id="rank-desc"></p>
+      <div class="end-actions">
+        <button class="btn btn-primary" id="btn-again">再来一局</button>
+        <button class="btn btn-ghost" id="btn-home">回到标题</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 玩法 -->
+<div class="modal hidden" id="modal-how">
+  <div class="modal-card">
+    <h3>怎么把老黄请出局</h3>
+    <ul>
+      <li><b>8 个季度</b>内，把 <b>支持率</b> 拉到 <b>罢免门槛</b> 以上，年度股东大会就会表决。</li>
+      <li>门槛会变：股价 <b>≥ 130</b>，董事不敢动，门槛升到 <b>66%</b>；股价 <b>≤ 85</b>，业绩难看，门槛降到 <b>52%</b>；否则 <b>60%</b>。</li>
+      <li><b>老黄警觉</b> 到 <b>100%</b>，他会先动手，你被保安请走。表忠心可以降警觉，但要掉支持率。</li>
+      <li>股价跌破 <b>50</b>，公司炸了，你成为替罪羊。</li>
+      <li>支持率领先门槛 <b>12 个点</b>以上（第 3-7 季度），可以提前摊牌，触发另一个结局。</li>
+      <li><b>黑料 ≥ 3</b> 时，终局会多出「黑料威慑 +8%」，也可能解锁更黑暗的结局。</li>
+    </ul>
+    <button class="btn btn-primary" id="btn-how-close" style="width:100%">明白了</button>
+  </div>
+</div>
+
+<!-- 图鉴 -->
+<div class="modal hidden" id="modal-gallery">
+  <div class="modal-card">
+    <h3>结局图鉴 <span id="gal-count-2" style="font-family:var(--mono);font-size:12px;color:var(--muted)"></span></h3>
+    <div class="gal-grid" id="gal-grid"></div>
+    <button class="btn btn-primary" id="btn-gallery-close" style="width:100%">关闭</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   工具
+============================================================ */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+/* ============================================================
+   像素立绘（16 × 16，SVG 逐格绘制）
+============================================================ */
+const PAL = {
+  H: "#4b525b", h: "#8b939d", S: "#d8a274", E: "#1a110c",
+  B: "#3a2a22", M: "#7c4034", J: "#101218", j: "#282d39", W: "#e2e9f2"
+};
+
+const FACE_BASE = [
+  "....HHHHHHHH....",
+  "..HHHHHHHHHHHH..",
+  ".HHHHHHHHHHHHHH.",
+  ".HHhSSSSSSSShHH.",
+  ".HhSSSSSSSSSShH.",
+  ".hSSSSSSSSSSSSh.",
+  ".SSBBSSSSSSBBSS.",
+  ".SSEESSSSSSEESS.",
+  ".SSSSSSSSSSSSSS.",
+  ".SSSSSMMMMSSSSS.",
+  "..SSSSSMMSSSSS..",
+  "..SSSSSSSSSSSS..",
+  "...SSSSSSSSSS...",
+  "..JJJWSSSSWJJJ..",
+  ".JJJJJWWWWJJJJJ.",
+  ".JJJJjJJJJjJJJJ."
+];
+
+const FACE_OVERRIDES = {  calm: {},
+  smirk: {
+    9:  ".SSSSSSMMMMSSSS.",
+    10: "..SSSSSSMMMSSS.."
+  },
+  angry: {
+    7:  ".SSSESSSSSSESSS.",
+    9:  "..SSSSMMMMSSSS..",
+    10: "..SSMSSSSSSMSS.."
+  }
+};
+
+function portraitSVG(mode = "calm") {
+  const map = FACE_BASE.slice();
+  const ov = FACE_OVERRIDES[mode] || {};
+  Object.keys(ov).forEach((i) => { map[+i] = ov[i]; });
+
+  let rects = "";
+  map.forEach((row, y) => {
+    [...row].forEach((ch, x) => {
+      if (ch === ".") return;
+      const fill = PAL[ch];
+      if (!fill) return;
+      rects += `<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${fill}"/>`;
+    });
+  });
+  return `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="像素老黄">${rects}</svg>`;
+}
+
+/* ============================================================
+   数据：行动
+============================================================ */
+const MAX_ROUNDS = 8;
+
+const ACTIONS = [
+  {
+    id: "lobby", tag: "游说", name: "私下串联董事",
+    desc: "三杯咖啡，两次密会，一个含糊的承诺。",
+    cost: { cash: 10 },
+    fx: { support: 10, alert: 7 }
+  },
+  {
+    id: "deal", tag: "许诺", name: "许诺对方CEO之位",
+    desc: "“事成之后，椅子是你的。”——这话你已经说过一遍了。",
+    cost: { cash: 14 },
+    fx: { support: 14, alert: 13 },
+    limit: 2
+  },
+  {
+    id: "media", tag: "唱衰", name: "买通分析师唱衰",
+    desc: "报告标题：《增长见顶，毛利率要塌》。下周一见报。",
+    cost: { cash: 12 },
+    fx: { support: 9, stock: -12, alert: 11 }
+  },
+  {
+    id: "buy", tag: "增持", name: "增持公司股票",
+    desc: "真金白银，换一个说话的音量。",
+    cost: { cash: 18 },
+    fx: { support: 7, stock: 5, alert: 3 }
+  },
+  {
+    id: "dig", tag: "挖掘", name: "挖黑料",
+    desc: "翻他十年前的邮件、期权和报销单。总有一条能用。",
+    cost: { cash: 8 },
+    fx: { support: 4, dirt: 1, alert: 7 }
+  },
+  {
+    id: "leak", tag: "发难", name: "放出黑料",
+    desc: "把料递给媒体。董事会群聊安静得可怕。",
+    cost: { dirt: 1 },
+    fx: { support: 15, stock: -10, alert: 18 }
+  },
+  {
+    id: "kiss", tag: "伪装", name: "向老黄表忠心",
+    desc: "“我永远支持您。”碰杯的声音很响，手有点抖。",
+    cost: {},
+    fx: { support: -2, alert: -28 }
+  }
+];
+
+/* ============================================================
+   数据：老黄的反击
+============================================================ */
+const COUNTERS = [
+  { id: "gpu",    name: "发布新一代 GPU",          line: "“我们的芯片，已经卖到月球了。”",        fx: { stock: 12, support: -5 } },
+  { id: "raise",  name: "全员加薪 + 发股票",        line: "“感谢每一位员工，我们是一家人。”",      fx: { support: -6, stock: -3 } },
+  { id: "gtc",    name: "GTC 主题演讲",             line: "皮衣登场，全场起立鼓掌四分钟。",        fx: { support: -7, stock: 7 } },
+  { id: "dinner", name: "请你到家里吃饭",           line: "“我妈妈做的菜，你一定要尝尝。”",        fx: { alert: -22, support: -2 } },
+  { id: "advisor",name: "任命你为“战略顾问”",       line: "“这个位置，只有你最合适。”",            fx: { alert: -12, support: -3 } },
+  { id: "tsmc",   name: "高调拜访台积电",           line: "一张握手照，概念股集体涨停。",          fx: { stock: 9, support: -3 } },
+  { id: "audit",  name: "反手举报你内幕交易",       line: "“审计组明天上午九点到。”",              fx: { cash: -14, alert: 10, support: -3 } },
+  { id: "letter", name: "全员信暗示“有人在搞事”",   line: "“我相信我们中间，有人还记得初心。”",    fx: { alert: 12, support: -3 } },
+  { id: "stage",  name: "把你拉上台演讲",           line: "你被安排讲“生态共赢”。掌声雷动。",      fx: { support: -2, stock: 4, alert: -8 } },
+  { id: "coffee", name: "在电梯里跟你聊了两句",     line: "“最近，你好像很忙。”",                  fx: { alert: 8 } }
+];
+
+const HOSTILE_COUNTERS = COUNTERS.filter((c) => ["audit", "letter", "gpu", "raise"].includes(c.id));
+
+const FINAL_COUNTERS = [
+  { id: "f_ten",   name: "年度大会：宣布“再干十年”", line: "“我还有很多事没做完。”台下欢呼。",      fx: { support: -10, stock: 6 } },
+  { id: "f_praise",name: "年度大会：当众点名感谢你", line: "全场看向你。你只能笑，还得鼓掌。",      fx: { support: -6, alert: -20 } },
+  { id: "f_robot", name: "年度大会：发布人形机器人", line: "机器人从侧幕走出来，股价原地起飞。",    fx: { stock: 14, support: -8 } }
+];
+
+/* 每回合开始时老黄的一句闲话 */
+const QUOTES = [
+  "“下一个十年，属于加速计算。”",
+  "“买得越多，省得越多。”",
+  "“我们不是在造芯片，我们在造未来。”",
+  "“我从不穿西装，因为我们要跑得比谁都快。”",
+  "“各位，预算的事，先放一放。”",
+  "“我最喜欢的公司，是下一家。”"
+];
+
+/* ============================================================
+   数据：结局
+============================================================ */
+const ENDINGS = {
+  vote_coup: {
+    no: "01", title: "皮衣落地", kind: "win", tag: "罢免成功 · 标准结局",
+    body: [
+      "临时董事会，投票结果 <b>7 : 4</b>。",
+      "他没有争辩，只是把皮衣脱下来，叠好，放在会议桌中央。",
+      "“The more you buy, the more you save，” 他说，“这句话，你们以后会懂的。”",
+      "门关上的那一刻，走廊里有人开始鼓掌。你赢了。你坐上那张椅子，才发现空调出风口正对着后颈——原来这十年，他一直坐在风口上。"
+    ]
+  },
+  flash_coup: {
+    no: "02", title: "闪电政变", kind: "win", tag: "罢免成功 · 抢先摊牌",
+    body: [
+      "表决在你宣布的第三分钟就结束了。他甚至没来得及穿上外套。",
+      "“我本来打算今天宣布退休的，”他笑着说，“你们抢了我的台词。”",
+      "第二天，公司市值蒸发 12%，然后因为一条“创始人离任”的快讯涨回 30%。分析师说：市场喜欢新故事。",
+      "你成了新故事的第一页。至少这个季度是。"
+    ]
+  },
+  dirt_nuke: {
+    no: "03", title: "黑料核弹", kind: "win", tag: "罢免成功 · 代价未知",
+    body: [
+      "你的证据太完整了，完整到连你自己的律师都开始出汗。",
+      "董事会 <b>8 : 3</b> 通过罢免，同时成立特别委员会——调查这些证据是怎么来的。",
+      "他走的时候对你点了点头。那是一种“我早知道”的表情。",
+      "三个月后，调查组的通知书放在你桌上。你赢了这场仗，输掉了下一场。"
+    ]
+  },
+  vote_fail: {
+    no: "04", title: "他连任了", kind: "lose", tag: "表决失败",
+    body: [
+      "投票 <b>4 : 7</b>。他重新穿上皮衣，向全场鞠了一躬。“谢谢大家继续信任。”",
+      "散会后，HR 找到你，说公司在数据中心园区给你准备了一个新职位：负责空调系统的能效优化。",
+      "“这个岗位很重要，”她说，“毕竟算力就是散热。”"
+    ]
+  },
+  fired: {
+    no: "05", title: "保安请你离开", kind: "lose", tag: "你被先下手为强",
+    body: [
+      "你的门禁卡在下午三点十七分失效。两名保安很客气，帮你把纸箱搬到电梯口。",
+      "电梯门关上之前，你看见他站在走廊尽头，手里拿着你的通话记录。“我一直很欣赏你，”他说，“真的。”",
+      "你在楼下便利店买了瓶水，才发现董事会群聊已经变成“你已不在该群聊”。"
+    ]
+  },
+  crash: {
+    no: "06", title: "你成了替罪羊", kind: "lose", tag: "股价崩盘",
+    body: [
+      "股价跌破 50 的那天，董事会连夜开会——议题不是罢免 CEO，是罢免你。",
+      "“是你放的黑料。”有人把邮件打印出来甩在桌上。你想解释，但会议室里没有人抬头。",
+      "新闻标题是：《董事会成员涉嫌操纵市场，英伟达股价闪崩》。",
+      "他发了条推文：“我们会回来的。”配图是他和皮衣。"
+    ]
+  }
+};
+
+/* ============================================================
+   状态
+============================================================ */
+const state = {
+  round: 1,
+  support: 24,
+  stock: 100,
+  cash: 40,
+  dirt: 1,
+  alert: 0,
+  dealCount: 0,
+  busy: false,
+  over: false,
+  earlyArmed: false,
+  lastCounters: [],
+  logCount: 0
+};
+
+function resetState() {
+  state.round = 1;
+  state.support = 24;
+  state.stock = 100;
+  state.cash = 40;
+  state.dirt = 1;
+  state.alert = 0;
+  state.dealCount = 0;
+  state.busy = false;
+  state.over = false;
+  state.earlyArmed = false;
+  state.lastCounters = [];
+  state.logCount = 0;
+  $("#log").innerHTML = "";
+}
+
+function threshold() {
+  if (state.stock >= 130) return 66;
+  if (state.stock <= 85) return 52;
+  return 60;
+}
+
+function canAfford(a) {
+  if (a.cost.cash && state.cash < a.cost.cash) return false;
+  if (a.cost.dirt && state.dirt < a.cost.dirt) return false;
+  if (a.limit && (a.id === "deal" ? state.dealCount : 0) >= a.limit) return false;
+  return true;
+}
+
+function applyFx(fx) {
+  if (fx.support) state.support = clamp(state.support + fx.support, 0, 100);
+  if (fx.stock) state.stock = clamp(state.stock + fx.stock, 0, 200);
+  if (fx.cash) state.cash = Math.max(0, state.cash + fx.cash);
+  if (fx.dirt) state.dirt = clamp(state.dirt + fx.dirt, 0, 9);
+  if (fx.alert) state.alert = clamp(state.alert + fx.alert, 0, 100);
+}
+
+/* ============================================================
+   渲染
+============================================================ */
+const FX_LABEL = {
+  support: "支持", stock: "股价", cash: "现金", dirt: "黑料", alert: "警觉"
+};
+/* 数值变化对玩家是好是坏：1 好，-1 坏，0 中性（股价） */
+const FX_GOOD = { support: 1, stock: 0, cash: 1, dirt: 1, alert: -1 };
+
+function fxText(fx) {
+  let out = "";
+  Object.keys(fx).forEach((k) => {
+    const v = fx[k];
+    if (!v) return;
+    const sign = v > 0 ? "+" : "";
+    let cls = "mid";
+    if (FX_GOOD[k] === 1) cls = v > 0 ? "up" : "down";
+    else if (FX_GOOD[k] === -1) cls = v > 0 ? "down" : "up";
+    else cls = "mid";
+    out += `<span class="delta ${cls}">${sign}${v} ${FX_LABEL[k]}</span>`;
+  });
+  return out;
+}
+
+function fxChips(fx) {
+  return Object.keys(fx).map((k) => {
+    const v = fx[k];
+    if (!v) return "";
+    const sign = v > 0 ? "+" : "";
+    let cls = "mid";
+    if (FX_GOOD[k] === 1) cls = v > 0 ? "good" : "bad";
+    else if (FX_GOOD[k] === -1) cls = v > 0 ? "bad" : "good";
+    return `<span class="chip ${cls}">${sign}${v} ${FX_LABEL[k]}</span>`;
+  }).join("");
+}
+
+function costLabel(a) {
+  const parts = [];
+  if (a.cost.cash) parts.push(`¥${a.cost.cash}M`);
+  if (a.cost.dirt) parts.push(`黑料 ×${a.cost.dirt}`);
+  if (!parts.length) return `<span class="card-cost free">免费 · 但要用一个季度</span>`;
+  return `<span class="card-cost">消耗：${parts.join(" + ")}</span>`;
+}
+
+function setNumber(sel, value) {
+  const el = $(sel);
+  if (!el) return;
+  if (el.textContent !== String(value)) {
+    el.textContent = value;
+  }
+}
+
+function render() {
+  const t = threshold();
+
+  setNumber("#v-support", state.support);
+  setNumber("#v-stock", state.stock);
+  setNumber("#v-cash", state.cash);
+  setNumber("#v-dirt", state.dirt);
+  setNumber("#v-alert", state.alert);
+
+  $("#bar-support").style.width = state.support + "%";
+  $("#bar-stock").style.width = clamp((state.stock / 200) * 100, 0, 100) + "%";
+  $("#bar-alert").style.width = state.alert + "%";
+  $("#tick-support").style.left = `calc(${t}% - 1px)`;
+
+  $("#hint-support").textContent = `罢免门槛 ${t}%`;
+  if (state.stock < 50) $("#hint-stock").textContent = "崩盘边缘";
+  else if (state.stock >= 130) $("#hint-stock").textContent = "股价高企 · 董事不敢动";
+  else if (state.stock <= 85) $("#hint-stock").textContent = "业绩难看 · 董事想换人";
+  else $("#hint-stock").textContent = "市值还算体面";
+
+  if (state.dirt >= 3) $("#hint-dirt").textContent = "终局威慑 +8%";
+  else if (state.dirt >= 2) $("#hint-dirt").textContent = "够写一篇报道";
+  else $("#hint-dirt").textContent = "握在手里的东西";
+
+  const drip = Math.ceil(state.support / 10);
+  if (state.alert >= 85) $("#hint-alert").textContent = `他在等你犯错 · 每季 +${drip}`;
+  else if (state.alert >= 60) $("#hint-alert").textContent = `他在查你 · 每季 +${drip}`;
+  else if (state.alert >= 30) $("#hint-alert").textContent = `他开始用眼角看你 · 每季 +${drip}`;
+  else $("#hint-alert").textContent = `他还没注意到你 · 每季 +${drip}`;
+
+  const chip = $("#status-chip");
+  chip.className = "status-chip";
+  if (state.alert >= 85) { chip.textContent = "状态：要动手了"; chip.classList.add("danger"); }
+  else if (state.alert >= 60) { chip.textContent = "状态：盯上你"; chip.classList.add("danger"); }
+  else if (state.alert >= 30) { chip.textContent = "状态：留意"; chip.classList.add("warn"); }
+  else { chip.textContent = "状态：淡定"; }
+
+  $("#round-label").textContent = `Q${Math.min(state.round, MAX_ROUNDS)} / ${MAX_ROUNDS}`;
+  renderHand();
+
+  const gap = threshold() - state.support;
+  $("#goal-line").textContent = gap > 0
+    ? `距离罢免门槛还差 ${gap} 个点`
+    : `已越过罢免门槛 ${-gap} 个点`;
+  $("#quarters-line").textContent = `剩余 ${Math.max(0, MAX_ROUNDS - state.round + 1)} 个季度`;
+
+  const early = $("#btn-early");
+  const avail = earlyAvailable() && !state.busy && !state.over;
+  early.classList.toggle("hidden", !avail);
+  if (avail && !state.earlyArmed) early.textContent = "发起临时股东会（提前摊牌）";
+}
+
+function renderHand() {
+  const hand = $("#hand");
+  hand.innerHTML = "";
+  ACTIONS.forEach((a, i) => {
+    const affordable = canAfford(a);
+    const locked = state.busy || state.over;
+    const btn = document.createElement("button");
+    btn.className = "card" + (affordable ? "" : " is-disabled");
+    btn.type = "button";
+    let lockLabel = "";
+    if (!affordable) {
+      if (a.limit && state.dealCount >= a.limit) lockLabel = "已许诺两次";
+      else if (a.cost.dirt && state.dirt < a.cost.dirt) lockLabel = "没有黑料";
+      else lockLabel = "资源不足";
+    }
+    btn.innerHTML = `
+      <span class="card-key">${i + 1}</span>
+      <span class="card-tag">${a.tag}</span>
+      <span class="card-name">${a.name}</span>
+      <span class="card-desc">${a.desc}</span>
+      <span class="card-fx">${fxChips(a.fx)}</span>
+      ${costLabel(a)}
+      ${lockLabel ? `<span class="card-lock">${lockLabel}</span>` : ""}
+    `;
+    btn.addEventListener("click", () => choose(a));
+    if (!affordable || locked) btn.disabled = true;
+    hand.appendChild(btn);
+  });
+}
+
+function earlyAvailable() {
+  return state.round >= 3 && state.round <= 7 && state.support >= threshold() + 12;
+}
+
+function pushLog(html, kind = "sys") {
+  const log = $("#log");
+  const row = document.createElement("div");
+  row.className = "log-row " + kind;
+  row.innerHTML = html;
+  log.appendChild(row);
+  state.logCount++;
+  while (log.children.length > 40) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+}
+
+function flashStat(key, delta) {
+  const wrap = $("#stat-" + key);
+  if (!wrap) return;
+  const b = wrap.querySelector(".stat-top b");
+  if (!b) return;
+  b.classList.remove("up", "down");
+  wrap.classList.remove("bump");
+  void wrap.offsetWidth;
+  wrap.classList.add("bump");
+  if (delta > 0) b.classList.add("up");
+  if (delta < 0) b.classList.add("down");
+  setTimeout(() => wrap.classList.remove("bump"), 480);
+}
+
+function setPortrait(mode) {
+  $("#portrait").innerHTML = portraitSVG(mode);
+}
+
+function setBubble(text, who = "黄仁勋 / CEO") {
+  const el = $("#bubble-text");
+  el.textContent = text;
+  const whoEl = $(".bubble .who");
+  if (whoEl) whoEl.textContent = who;
+  el.style.animation = "none";
+  void el.offsetWidth;
+  el.style.animation = "fadeUp .25s ease";
+}
+
+function toast(msg, bad = false) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.toggle("bad", !!bad);
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+/* ============================================================
+   音效
+============================================================ */
+let audioCtx = null;
+let soundOn = true;
+
+function tone(freq, dur = 0.08, type = "square", gain = 0.035, sweepTo = null) {
+  if (!soundOn) return;
+  try {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = new AC();
+    }
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (sweepTo) osc.frequency.exponentialRampToValueAtTime(sweepTo, t0 + dur);
+    g.gain.setValueAtTime(gain, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  } catch (e) { /* 忽略音频错误 */ }
+}
+
+const SFX = {
+  click: () => tone(560, 0.05, "square", 0.03),
+  gain: () => { tone(520, 0.07, "triangle", 0.04); setTimeout(() => tone(780, 0.09, "triangle", 0.035), 60); },
+  hit: () => tone(160, 0.26, "sawtooth", 0.045, 55),
+  warn: () => tone(320, 0.12, "square", 0.03, 240),
+  win: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.22, "triangle", 0.045), i * 110)),
+  lose: () => [330, 262, 196, 147].forEach((f, i) => setTimeout(() => tone(f, 0.26, "sawtooth", 0.04), i * 130))
+};
+
+/* ============================================================
+   核心流程
+============================================================ */
+function startGame() {
+  resetState();
+  showScreen("game");
+  setPortrait("calm");
+  setBubble(rnd(QUOTES));
+  render();
+  pushLog("系统：你被安排在长桌最靠门的位置。整整十年。", "sys");
+  pushLog("系统：目标 —— 8 个季度内，把支持率拉到罢免门槛之上。", "sys");
+  pushLog("老黄：“明年的算力需求，会再翻十倍。”你决定，这不该是他的第十个十年。", "him");
+  SFX.click();
+}
+
+async function choose(action) {
+  if (state.busy || state.over) return;
+  if (!canAfford(action)) {
+    toast(action.limit && state.dealCount >= action.limit ? "这个位置，你已经许诺过了" : "资源不够，先想想别的办法", true);
+    SFX.warn();
+    return;
+  }
+
+  state.busy = true;
+  state.earlyArmed = false;
+  $("#btn-early").classList.add("hidden");
+  renderHand();
+  SFX.click();
+
+  /* --- 玩家行动 --- */
+  let fx = { ...action.fx };
+  if (action.id === "deal") {
+    const second = state.dealCount >= 1;
+    if (second) {
+      fx.support = 7;
+      pushLog("你也许诺过另一位董事同样的位置。圈子很小，消息更快。", "warn");
+    }
+    state.dealCount++;
+  }
+
+  if (action.cost.cash) state.cash -= action.cost.cash;
+  if (action.cost.dirt) state.dirt -= action.cost.dirt;
+
+  applyFx(fx);
+  pushLog(`<b>你 · ${action.name}</b>${fxText(fx)}`, "you");
+  Object.keys(fx).forEach((k) => flashStat(k, fx[k]));
+  render();
+  if (fx.support > 0) SFX.gain();
+
+  await sleep(720);
+
+  /* --- 老黄反击 --- */
+  await counterPhase();
+
+  /* --- 季度结算 --- */
+  state.cash += 10;
+  state.stock = clamp(state.stock + 1, 0, 200);
+  const passive = Math.ceil(state.support / 10);
+  state.alert = clamp(state.alert + passive, 0, 100);
+
+  pushLog(`季度结算：董事津贴 <b>+¥10M</b> · AI 热潮 <b>+1</b> 股价 · 你的存在感 <b>+${passive}</b> 警觉`, "sys");
+  render();
+  flashStat("cash", 10);
+  await sleep(520);
+
+  /* --- 判定 --- */
+  if (state.alert >= 100) {
+    pushLog("你的门禁卡在下午三点十七分失效了。", "warn");
+    return endGame("fired");
+  }
+  if (state.stock < 50) {
+    pushLog("股价跌破 50。董事会连夜开会——议题是你。", "warn");
+    return endGame("crash");
+  }
+
+  state.round++;
+  if (state.round > MAX_ROUNDS) {
+    return resolveVote();
+  }
+
+  state.busy = false;
+  if (state.alert >= 70) setPortrait("angry");
+  render();
+}
+
+async function counterPhase() {
+  let pool = COUNTERS;
+  if (state.round >= MAX_ROUNDS) pool = FINAL_COUNTERS;
+  else if (state.alert >= 70) pool = HOSTILE_COUNTERS;
+
+  const candidates = pool.filter((c) => !state.lastCounters.includes(c.id));
+  const c = rnd(candidates.length ? candidates : pool);
+  state.lastCounters.unshift(c.id);
+  state.lastCounters = state.lastCounters.slice(0, 2);
+
+  setPortrait(c.fx.support <= -6 ? "smirk" : "calm");
+  setBubble(`【${c.name}】${c.line}`);
+  $("#jensen-panel").classList.add("shake");
+  SFX.hit();
+  await sleep(620);
+  $("#jensen-panel").classList.remove("shake");
+
+  applyFx(c.fx);
+  pushLog(`<b>老黄 · ${c.name}</b>${fxText(c.fx)}`, "him");
+  Object.keys(c.fx).forEach((k) => flashStat(k, c.fx[k]));
+  render();
+  await sleep(420);
+}
+
+async function resolveVote() {
+  state.busy = true;
+  setPortrait(state.alert >= 60 ? "angry" : "calm");
+  setBubble("“那么，开始投票吧。”");
+  pushLog("年度股东大会。投影仪亮起，屏幕上只剩一个数字。", "sys");
+  await sleep(900);
+
+  const t = threshold();
+  const bonus = state.dirt >= 3 ? 8 : 0;
+  const eff = Math.min(100, state.support + bonus);
+
+  pushLog(
+    bonus
+      ? `表决：支持率 <b>${state.support}%</b> + 黑料威慑 <b>${bonus}%</b> = <b>${eff}%</b> · 门槛 <b>${t}%</b>`
+      : `表决：支持率 <b>${state.support}%</b> · 门槛 <b>${t}%</b>`,
+    "sys"
+  );
+  await sleep(1100);
+
+  if (eff >= t) {
+    endGame(state.dirt >= 3 ? "dirt_nuke" : "vote_coup", { eff, t, bonus });
+  } else {
+    endGame("vote_fail", { eff, t, bonus });
+  }
+}
+
+/* ============================================================
+   结算
+============================================================ */
+function computeRank(win) {
+  const raw =
+    state.support +
+    (state.stock - 100) * 0.3 +
+    state.dirt * 3 -
+    state.alert * 0.2 +
+    (win ? 35 : 0);
+  if (raw >= 115) return { letter: "S", desc: "教科书级别的董事会政变。商学院会拿你当案例——但愿是正面的那种。" };
+  if (raw >= 92) return { letter: "A", desc: "干净、利落、几乎没有人流血。除了股价。" };
+  if (raw >= 72) return { letter: "B", desc: "结果还行，过程一般。历史书会给你半页。" };
+  if (raw >= 52) return { letter: "C", desc: "你活下来了。在这个董事会，这已经算成就。" };
+  return { letter: "D", desc: "你被记录在《公司治理反面教材》第 3 章。" };
+}
+
+function endGame(id, meta = {}) {
+  const E = ENDINGS[id];
+  if (!E) return;
+  state.over = true;
+  state.busy = true;
+
+  const isNew = unlockEnding(id);
+  const win = E.kind === "win";
+
+  $("#end-card").classList.toggle("lose", !win);
+  $("#end-code").textContent = `ENDING ${E.no} / 06`;
+  $("#end-title").textContent = E.title;
+  $("#end-tag").innerHTML = E.tag + (isNew ? '<span class="new-unlock">NEW</span>' : "");
+
+  $("#end-body").innerHTML = E.body.map((p) => `<p>${p}</p>`).join("");
+
+  const t = threshold();
+  const bonus = state.dirt >= 3 ? 8 : 0;
+  $("#end-stats").innerHTML = [
+    ["支持率", state.support + "%"],
+    ["门槛", t + "%"],
+    ["股价", "$" + state.stock],
+    ["现金", "¥" + state.cash + "M"],
+    ["黑料", state.dirt + " 份"],
+    ["警觉", state.alert + "%"],
+    ["存活", Math.min(state.round, MAX_ROUNDS) + " 季度"]
+  ].map(([k, v]) => `<div class="end-stat"><span>${k}</span><b>${v}</b></div>`).join("");
+
+  const rank = computeRank(win);
+  $("#rank-letter").textContent = rank.letter;
+  $("#rank-desc").textContent = rank.desc + (bonus ? `（本局触发黑料威慑 +${bonus}%）` : "");
+
+  showScreen("end");
+  updateGalleryCount();
+  if (win) SFX.win(); else SFX.lose();
+}
+
+/* ============================================================
+   结局图鉴（localStorage）
+============================================================ */
+const STORE_KEY = "leather-coup-endings-v1";
+
+function unlockedEndings() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter((k) => ENDINGS[k]) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function unlockEnding(id) {
+  const list = unlockedEndings();
+  if (list.includes(id)) return false;
+  list.push(id);
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch (e) { /* 忽略 */ }
+  return true;
+}
+
+function updateGalleryCount() {
+  const n = unlockedEndings().length;
+  $("#gal-count").textContent = `${n}/6`;
+  $("#gal-count-2").textContent = `${n} / 6`;
+}
+
+function buildGallery() {
+  const got = unlockedEndings();
+  $("#gal-grid").innerHTML = Object.keys(ENDINGS).map((key) => {
+    const E = ENDINGS[key];
+    const on = got.includes(key);
+    return `<div class="gal-item ${on ? "" : "locked"}">
+      <span>ENDING ${E.no}</span>
+      <b>${on ? E.title : "？？？"}</b>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   界面切换
+============================================================ */
+function showScreen(name) {
+  $$(".screen").forEach((s) => s.classList.remove("is-active"));
+  const el = $("#screen-" + name);
+  if (el) el.classList.add("is-active");
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   事件绑定
+============================================================ */
+function bindEvents() {
+  $("#btn-start").addEventListener("click", startGame);
+  $("#btn-again").addEventListener("click", startGame);
+  $("#btn-home").addEventListener("click", () => {
+    showScreen("title");
+    updateGalleryCount();
+  });
+
+  $("#btn-how").addEventListener("click", () => $("#modal-how").classList.remove("hidden"));
+  $("#btn-how-close").addEventListener("click", () => $("#modal-how").classList.add("hidden"));
+  $("#btn-gallery").addEventListener("click", () => {
+    buildGallery();
+    updateGalleryCount();
+    $("#modal-gallery").classList.remove("hidden");
+  });
+  $("#btn-gallery-close").addEventListener("click", () => $("#modal-gallery").classList.add("hidden"));
+
+  $$(".modal").forEach((m) => {
+    m.addEventListener("click", (e) => {
+      if (e.target === m) m.classList.add("hidden");
+    });
+  });
+
+  $("#btn-early").addEventListener("click", () => {
+    if (state.busy || state.over) return;
+    if (!earlyAvailable()) return;
+    if (!state.earlyArmed) {
+      state.earlyArmed = true;
+      $("#btn-early").textContent = "确定现在摊牌？再点一次";
+      SFX.warn();
+      return;
+    }
+    state.busy = true;
+    pushLog("你在董事群里发了一条消息：“我提议，现在就表决。”", "you");
+    pushLog("三十秒后，群里出现了一个「正在输入…」——持续了整整两分钟。", "sys");
+    endGame("flash_coup");
+  });
+
+  $("#btn-sound").addEventListener("click", () => {
+    soundOn = !soundOn;
+    $("#btn-sound").classList.toggle("is-off", !soundOn);
+    if (soundOn) SFX.click();
+    toast(soundOn ? "音效：开" : "音效：关");
+  });
+
+  $("#btn-help-game").addEventListener("click", () => {
+    $("#modal-how").classList.remove("hidden");
+    SFX.click();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const openModal = $$(".modal").find((m) => !m.classList.contains("hidden"));
+    if (e.key === "Escape" && openModal) {
+      openModal.classList.add("hidden");
+      return;
+    }
+    if (openModal) return;
+    if (!$("#screen-game").classList.contains("is-active")) return;
+    if (state.busy || state.over) return;
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= ACTIONS.length) {
+      e.preventDefault();
+      choose(ACTIONS[n - 1]);
+    }
+  });
+}
+
+/* ============================================================
+   启动
+============================================================ */
+function init() {
+  $("#title-portrait").innerHTML = portraitSVG("calm");
+  setPortrait("calm");
+  bindEvents();
+  updateGalleryCount();
+  render();
+  if (location.hash === "#play") startGame();
+}
+
+init();
+</script>
+</body>
+</html>
