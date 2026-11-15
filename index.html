@@ -252,8 +252,26 @@
   }
   .photo-frame::before{top:5px;left:5px;border-right:0;border-bottom:0}
   .photo-frame::after{bottom:5px;right:5px;border-left:0;border-top:0}
-  .portrait{position:relative;z-index:2;filter:drop-shadow(0 6px 26px rgba(0,0,0,.7))}
-  .portrait svg{width:100%;display:block;image-rendering:pixelated;shape-rendering:crispEdges}
+  .portrait{position:relative;z-index:2;overflow:hidden;aspect-ratio:4/5;background:#000;border:1px solid #1e3327;cursor:pointer}
+  .portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92) contrast(1.06) brightness(.92);transition:transform .45s, filter .45s}
+  .portrait:hover img{transform:scale(1.02)}
+  .portrait img.pop{animation:photoPop .45s ease}
+  @keyframes photoPop{0%{transform:scale(1.07);filter:brightness(1.7) saturate(.5)}100%{transform:scale(1);filter:brightness(.92) saturate(.92)}}
+  .meme-caption{
+    position:absolute;left:0;right:0;bottom:0;z-index:3;
+    padding:28px 12px 11px;
+    font-weight:900;font-size:clamp(15px,1.5vw,19px);line-height:1.35;letter-spacing:.01em;
+    color:#fff;text-align:center;
+    text-shadow:0 2px 0 #000, 0 0 8px #000, 1px 0 0 #000, -1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000;
+    background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.72));
+    pointer-events:none;
+  }
+  .poke-hint{
+    position:absolute;top:8px;left:8px;z-index:3;
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+    padding:3px 6px;color:#0a1206;background:var(--neon);
+    opacity:.9;pointer-events:none;animation:pulse 2.4s infinite;
+  }
   .glitch-layer{
     position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
     background:repeating-linear-gradient(0deg, rgba(141,255,58,.10) 0 1px, transparent 1px 4px);
@@ -371,6 +389,42 @@
   }
   .card-cost.free{color:#5f7a65}
 
+  /* 反应条 */
+  .reaction-bar{
+    margin-top:10px;padding:12px;
+    border:1px solid #3a2a4a;
+    background:linear-gradient(180deg,#120b18,#0a0710);
+    box-shadow:inset 0 0 40px rgba(160,107,255,.06);
+    animation:fadeUp .25s ease both;
+  }
+  .reaction-head{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#b79bc6;margin-bottom:9px}
+  .reaction-head b{color:#f1dcff}
+  .reaction-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:780px;margin:0 auto}
+  .reaction-btn{
+    display:flex;flex-direction:row;align-items:center;justify-content:center;gap:9px;
+    padding:12px 8px;background:#0c0810;border:1px solid #3b2e4a;
+    color:#ead9f5;cursor:pointer;font-family:inherit;
+    transition:transform .14s, border-color .16s, box-shadow .16s;
+  }
+  .reaction-btn:hover{border-color:var(--violet);box-shadow:0 0 22px rgba(160,107,255,.28);transform:translateY(-2px)}
+  .r-emoji{font-size:22px;line-height:1}
+  .r-name{font-size:13px;font-weight:700;letter-spacing:.04em}
+  .r-fx{font-family:var(--mono);font-size:9.5px;color:#9b86ab;text-align:center;line-height:1.3}
+  @media (max-width:520px){
+    .reaction-options{grid-template-columns:1fr}
+    .reaction-btn{flex-direction:row;justify-content:space-between;padding:9px 12px}
+  }
+
+  .end-face{width:84px;height:84px;object-fit:cover;border:2px solid var(--neon);box-shadow:0 0 18px rgba(141,255,58,.3);flex:0 0 auto}
+  .end-card.lose .end-face{border-color:var(--magenta);box-shadow:0 0 18px rgba(255,46,106,.3)}
+
+  .float-fx{
+    position:fixed;z-index:9997;pointer-events:none;
+    font-family:var(--mono);font-weight:700;font-size:18px;color:var(--neon);
+    text-shadow:0 0 12px rgba(141,255,58,.9);animation:floatUp .95s ease forwards;
+  }
+  @keyframes floatUp{0%{opacity:0;transform:translateY(8px)}18%{opacity:1}100%{opacity:0;transform:translateY(-46px)}}
+
   #btn-early{margin-top:12px;width:100%;padding:14px;letter-spacing:.18em}
 
   /* ---------- 结算页 ---------- */
@@ -464,8 +518,9 @@
     .stats{grid-column:1 / -1;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
     .stat{min-width:0;max-width:none}
     #stat-alert{grid-column:1 / -1}
-    .portrait{display:flex;justify-content:center}
-    .portrait svg{width:auto;height:200px}
+    .portrait{display:block;height:300px;aspect-ratio:auto}
+    .portrait img{object-position:50% 22%}
+    .meme-caption{font-size:16px;padding-top:24px}
     .log-panel{max-height:280px}
     .hand{gap:8px}
     .card{min-height:0}
@@ -502,6 +557,7 @@
       </div>
       <p class="disclaimer">
         本作为虚构讽刺小游戏，与任何真实人物、公司、事件无关。<br>
+        人物照片取自公开网络，仅用于戏仿与梗图表达，版权归原作者所有，侵删。<br>
         皮衣属于他自己。
       </p>
     </div>
@@ -551,7 +607,11 @@
         </div>
         <div class="photo-frame">
           <div class="status-chip" id="status-chip">状态：淡定</div>
-          <div class="portrait" id="portrait"></div>
+          <div class="portrait" id="portrait">
+            <img id="photo" src="assets/jensen-calm.jpg" alt="黄仁勋">
+            <div class="meme-caption" id="meme-caption">我们这行，只有第一。</div>
+            <div class="poke-hint" id="poke-hint">点我 · 怼他一句</div>
+          </div>
           <div class="glitch-layer"></div>
         </div>
         <div class="nameplate">
@@ -570,11 +630,27 @@
       </div>
     </div>
 
-    <div class="hand-head">
+    <div class="hand-head" id="hand-head">
       <span>本季度行动 <b>（点击卡牌，或按数字键 1-7）</b></span>
       <span id="hand-hint">一个季度只能做一件事</span>
     </div>
     <div class="hand" id="hand"></div>
+
+    <div class="reaction-bar hidden" id="reaction-bar">
+      <div class="reaction-head">他出完牌了 · <b>你怎么接？</b></div>
+      <div class="reaction-options">
+        <button class="reaction-btn" data-r="clap">
+          <span class="r-emoji">👏</span><span class="r-name">鼓掌</span><span class="r-fx">警觉 -5</span>
+        </button>
+        <button class="reaction-btn" data-r="eye">
+          <span class="r-emoji">🙄</span><span class="r-name">翻白眼</span><span class="r-fx">支持 +2 · 警觉 +5</span>
+        </button>
+        <button class="reaction-btn" data-r="slam">
+          <span class="r-emoji">🖐</span><span class="r-name">拍桌</span><span class="r-fx">支持 +4 · 警觉 +10 · 股价 -3</span>
+        </button>
+      </div>
+    </div>
+
     <button id="btn-early" class="btn btn-danger hidden">发起临时股东会</button>
   </section>
 
@@ -586,6 +662,7 @@
           <p class="eyebrow" id="end-code">ENDING 01 / 06</p>
           <h2 class="end-title" id="end-title">皮衣落地</h2>
         </div>
+        <img class="end-face" id="end-face" src="assets/jensen-laugh.jpg" alt="黄仁勋">
         <div class="rank">
           <span class="rank-letter" id="rank-letter">A</span>
         </div>
@@ -614,6 +691,8 @@
       <li>股价跌破 <b>50</b>，公司炸了，你成为替罪羊。</li>
       <li>支持率领先门槛 <b>12 个点</b>以上（第 3-7 季度），可以提前摊牌，触发另一个结局。</li>
       <li><b>黑料 ≥ 3</b> 时，终局会多出「黑料威慑 +8%」，也可能解锁更黑暗的结局。</li>
+      <li><b>点一下老黄的照片</b>可以当众怼他：每季度一次，<b>+1 支持、+4 警觉</b>。</li>
+      <li>他每次出完牌，你可以选一种反应：<b>鼓掌</b>（警觉 -6）、<b>翻白眼</b>（支持 +2、警觉 +5）、<b>拍桌</b>（支持 +4、警觉 +10、股价 -3）。</li>
     </ul>
     <button class="btn btn-primary" id="btn-how-close" style="width:100%">明白了</button>
   </div>
@@ -753,24 +832,34 @@ const ACTIONS = [
    数据：老黄的反击
 ============================================================ */
 const COUNTERS = [
-  { id: "gpu",    name: "发布新一代 GPU",          line: "“我们的芯片，已经卖到月球了。”",        fx: { stock: 12, support: -5 } },
-  { id: "raise",  name: "全员加薪 + 发股票",        line: "“感谢每一位员工，我们是一家人。”",      fx: { support: -6, stock: -3 } },
-  { id: "gtc",    name: "GTC 主题演讲",             line: "皮衣登场，全场起立鼓掌四分钟。",        fx: { support: -7, stock: 7 } },
-  { id: "dinner", name: "请你到家里吃饭",           line: "“我妈妈做的菜，你一定要尝尝。”",        fx: { alert: -22, support: -2 } },
-  { id: "advisor",name: "任命你为“战略顾问”",       line: "“这个位置，只有你最合适。”",            fx: { alert: -12, support: -3 } },
-  { id: "tsmc",   name: "高调拜访台积电",           line: "一张握手照，概念股集体涨停。",          fx: { stock: 9, support: -3 } },
-  { id: "audit",  name: "反手举报你内幕交易",       line: "“审计组明天上午九点到。”",              fx: { cash: -14, alert: 10, support: -3 } },
-  { id: "letter", name: "全员信暗示“有人在搞事”",   line: "“我相信我们中间，有人还记得初心。”",    fx: { alert: 12, support: -3 } },
-  { id: "stage",  name: "把你拉上台演讲",           line: "你被安排讲“生态共赢”。掌声雷动。",      fx: { support: -2, stock: 4, alert: -8 } },
-  { id: "coffee", name: "在电梯里跟你聊了两句",     line: "“最近，你好像很忙。”",                  fx: { alert: 8 } }
+  { id: "gpu",    name: "发布新一代 GPU",          line: "“我们的芯片，已经卖到月球了。”",        meme: "卖到月球了",              fx: { stock: 12, support: -5 } },
+  { id: "raise",  name: "全员加薪 + 发股票",        line: "“感谢每一位员工，我们是一家人。”",      meme: "我们是一家人",            fx: { support: -6, stock: -3 } },
+  { id: "gtc",    name: "GTC 主题演讲",             line: "皮衣登场，全场起立鼓掌四分钟。",        meme: "掌声，四分钟",            fx: { support: -7, stock: 7 } },
+  { id: "dinner", name: "请你到家里吃饭",           line: "“我妈妈做的菜，你一定要尝尝。”",        meme: "我妈做的菜",              fx: { alert: -22, support: -2 } },
+  { id: "advisor",name: "任命你为“战略顾问”",       line: "“这个位置，只有你最合适。”",            meme: "这位置最适合你",          fx: { alert: -12, support: -3 } },
+  { id: "tsmc",   name: "高调拜访台积电",           line: "一张握手照，概念股集体涨停。",          meme: "一张握手照",              fx: { stock: 9, support: -3 } },
+  { id: "audit",  name: "反手举报你内幕交易",       line: "“审计组明天上午九点到。”",              meme: "审计，明早九点",          fx: { cash: -14, alert: 10, support: -3 } },
+  { id: "letter", name: "全员信暗示“有人在搞事”",   line: "“我相信我们中间，有人还记得初心。”",    meme: "有人忘了初心",            fx: { alert: 12, support: -3 } },
+  { id: "stage",  name: "把你拉上台演讲",           line: "你被安排讲“生态共赢”。掌声雷动。",      meme: "生态共赢，谢谢",          fx: { support: -2, stock: 4, alert: -8 } },
+  { id: "coffee", name: "在电梯里跟你聊了两句",     line: "“最近，你好像很忙。”",                  meme: "最近，很忙？",            fx: { alert: 8 } }
 ];
 
 const HOSTILE_COUNTERS = COUNTERS.filter((c) => ["audit", "letter", "gpu", "raise"].includes(c.id));
 
 const FINAL_COUNTERS = [
-  { id: "f_ten",   name: "年度大会：宣布“再干十年”", line: "“我还有很多事没做完。”台下欢呼。",      fx: { support: -10, stock: 6 } },
-  { id: "f_praise",name: "年度大会：当众点名感谢你", line: "全场看向你。你只能笑，还得鼓掌。",      fx: { support: -6, alert: -20 } },
-  { id: "f_robot", name: "年度大会：发布人形机器人", line: "机器人从侧幕走出来，股价原地起飞。",    fx: { stock: 14, support: -8 } }
+  { id: "f_ten",   name: "年度大会：宣布“再干十年”", line: "“我还有很多事没做完。”台下欢呼。",      meme: "再干十年",                fx: { support: -10, stock: 6 } },
+  { id: "f_praise",name: "年度大会：当众点名感谢你", line: "全场看向你。你只能笑，还得鼓掌。",      meme: "谢谢你，老朋友",          fx: { support: -6, alert: -20 } },
+  { id: "f_robot", name: "年度大会：发布人形机器人", line: "机器人从侧幕走出来，股价原地起飞。",    meme: "机器人上台了",            fx: { stock: 14, support: -8 } }
+];
+
+/* 点他一下时，他的回怼 */
+const ROAST_BACKS = [
+  "“年轻人，火气不要这么大。”",
+  "“你上次也是这么说的。”",
+  "“有意思。散会后来我办公室。”",
+  "“我记住你了。”",
+  "“你说得对。下一个议程。”",
+  "“我在这个行业三十年，第一次听到这种说法。”"
 ];
 
 /* 每回合开始时老黄的一句闲话 */
@@ -855,6 +944,7 @@ const state = {
   busy: false,
   over: false,
   earlyArmed: false,
+  poked: false,
   lastCounters: [],
   logCount: 0
 };
@@ -870,6 +960,7 @@ function resetState() {
   state.busy = false;
   state.over = false;
   state.earlyArmed = false;
+  state.poked = false;
   state.lastCounters = [];
   state.logCount = 0;
   $("#log").innerHTML = "";
@@ -998,6 +1089,9 @@ function render() {
   const avail = earlyAvailable() && !state.busy && !state.over;
   early.classList.toggle("hidden", !avail);
   if (avail && !state.earlyArmed) early.textContent = "发起临时股东会（提前摊牌）";
+
+  const pokeHint = $("#poke-hint");
+  if (pokeHint) pokeHint.classList.toggle("hidden", state.poked || state.busy || state.over);
 }
 
 function renderHand() {
@@ -1059,8 +1153,40 @@ function flashStat(key, delta) {
   setTimeout(() => wrap.classList.remove("bump"), 480);
 }
 
-function setPortrait(mode) {
-  $("#portrait").innerHTML = portraitSVG(mode);
+const FACES = {
+  calm:  { src: "assets/jensen-calm.jpg",  cap: "我们这行，只有第一。" },
+  smug:  { src: "assets/jensen-smug.jpg",  cap: "你再说一遍？" },
+  angry: { src: "assets/jensen-angry.jpg", cap: "你在教我做事？" },
+  laugh: { src: "assets/jensen-laugh.jpg", cap: "哈哈哈，好啊。" }
+};
+let currentFace = "";
+
+function setFace(mode, caption) {
+  const f = FACES[mode] || FACES.calm;
+  const img = $("#photo");
+  const capEl = $("#meme-caption");
+  const changed = currentFace !== mode;
+  if (img.getAttribute("src") !== f.src) img.src = f.src;
+  currentFace = mode;
+  capEl.textContent = caption || f.cap;
+  if (changed) {
+    img.classList.remove("pop");
+    void img.offsetWidth;
+    img.classList.add("pop");
+    capEl.style.animation = "none";
+    void capEl.offsetWidth;
+    capEl.style.animation = "fadeUp .3s ease";
+  }
+}
+
+function floatFx(text, x, y) {
+  const el = document.createElement("div");
+  el.className = "float-fx";
+  el.textContent = text;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
 }
 
 function setBubble(text, who = "黄仁勋 / CEO") {
@@ -1125,7 +1251,7 @@ const SFX = {
 function startGame() {
   resetState();
   showScreen("game");
-  setPortrait("calm");
+  setFace("calm");
   setBubble(rnd(QUOTES));
   render();
   pushLog("系统：你被安排在长桌最靠门的位置。整整十年。", "sys");
@@ -1173,6 +1299,11 @@ async function choose(action) {
   /* --- 老黄反击 --- */
   await counterPhase();
 
+  /* --- 你的反应（互动环节） --- */
+  const reaction = await askReaction();
+  applyReaction(reaction);
+  await sleep(780);
+
   /* --- 季度结算 --- */
   state.cash += 10;
   state.stock = clamp(state.stock + 1, 0, 200);
@@ -1200,7 +1331,8 @@ async function choose(action) {
   }
 
   state.busy = false;
-  if (state.alert >= 70) setPortrait("angry");
+  state.poked = false;
+  if (state.alert >= 70) setFace("angry", "我们中间，有人在搞事。");
   render();
 }
 
@@ -1214,7 +1346,7 @@ async function counterPhase() {
   state.lastCounters.unshift(c.id);
   state.lastCounters = state.lastCounters.slice(0, 2);
 
-  setPortrait(c.fx.support <= -6 ? "smirk" : "calm");
+  setFace(c.fx.support <= -6 ? "smug" : "calm", c.meme);
   setBubble(`【${c.name}】${c.line}`);
   $("#jensen-panel").classList.add("shake");
   SFX.hit();
@@ -1228,9 +1360,85 @@ async function counterPhase() {
   await sleep(420);
 }
 
+/* ============================================================
+   互动：反应 & 怼他
+============================================================ */
+const REACTIONS = {
+  clap: {
+    name: "鼓掌", support: 0, alert: -6, stock: 0,
+    face: "smug", cap: "懂事。", reply: "“很好，继续保持。”",
+    line: "你带头鼓掌，鼓得比谁都响。他朝你点点头，把你记在了「懂事」那一栏。"
+  },
+  eye: {
+    name: "翻白眼", support: 2, alert: 5, stock: 0,
+    face: "calm", cap: "我什么也没说。", reply: "“你刚才，是不是翻了个白眼？”",
+    line: "你翻了个白眼。他看见了，什么也没说——但他记住了。"
+  },
+  slam: {
+    name: "拍桌", support: 4, alert: 10, stock: -3,
+    face: "angry", cap: "你在教我做事？", reply: "“坐下。”",
+    line: "你拍了桌子。会议室安静了三秒，只有空调在响。"
+  }
+};
+
+let reactionResolve = null;
+
+function askReaction() {
+  return new Promise((resolve) => {
+    reactionResolve = resolve;
+    $("#hand-head").classList.add("hidden");
+    $("#hand").classList.add("hidden");
+    $("#reaction-bar").classList.remove("hidden");
+    $("#reaction-bar").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
+}
+
+function chooseReaction(kind) {
+  if (!reactionResolve) return;
+  const resolve = reactionResolve;
+  reactionResolve = null;
+  $("#reaction-bar").classList.add("hidden");
+  $("#hand-head").classList.remove("hidden");
+  $("#hand").classList.remove("hidden");
+  resolve(kind);
+}
+
+function applyReaction(kind) {
+  const r = REACTIONS[kind] || REACTIONS.clap;
+  const fx = { support: r.support, alert: r.alert, stock: r.stock };
+  applyFx(fx);
+  pushLog(`<b>你 · ${r.name}</b>${fxText(fx)}`, "you");
+  Object.keys(fx).forEach((k) => { if (fx[k]) flashStat(k, fx[k]); });
+  setFace(r.face, r.cap);
+  setBubble(r.reply);
+  render();
+  if (kind === "slam") SFX.hit(); else if (kind === "eye") SFX.warn(); else SFX.click();
+}
+
+function pokeHim() {
+  if (state.over || state.busy) return;
+  if (!$("#screen-game").classList.contains("is-active")) return;
+  if (state.poked) {
+    toast("这个季度已经怼过他了", true);
+    SFX.warn();
+    return;
+  }
+  state.poked = true;
+  applyFx({ support: 1, alert: 4 });
+  pushLog(`你 · 当众怼了他一句：<b>“黄总，这套 PPT 我看过三遍了。”</b>${fxText({ support: 1, alert: 4 })}`, "you");
+  setFace("angry", "你在教我做事？");
+  setBubble(rnd(ROAST_BACKS));
+  render();
+  flashStat("support", 1);
+  flashStat("alert", 4);
+  SFX.click();
+  const rect = $("#portrait").getBoundingClientRect();
+  floatFx("+1 支持", rect.left + rect.width / 2 - 28, rect.top + rect.height * 0.3);
+}
+
 async function resolveVote() {
   state.busy = true;
-  setPortrait(state.alert >= 60 ? "angry" : "calm");
+  setFace(state.alert >= 60 ? "angry" : "calm", "那么，开始投票吧。");
   setBubble("“那么，开始投票吧。”");
   pushLog("年度股东大会。投影仪亮起，屏幕上只剩一个数字。", "sys");
   await sleep(900);
@@ -1302,6 +1510,7 @@ function endGame(id, meta = {}) {
   const rank = computeRank(win);
   $("#rank-letter").textContent = rank.letter;
   $("#rank-desc").textContent = rank.desc + (bonus ? `（本局触发黑料威慑 +${bonus}%）` : "");
+  $("#end-face").src = win ? "assets/jensen-laugh.jpg" : "assets/jensen-angry.jpg";
 
   showScreen("end");
   updateGalleryCount();
@@ -1412,6 +1621,11 @@ function bindEvents() {
     SFX.click();
   });
 
+  $("#portrait").addEventListener("click", pokeHim);
+  $$(".reaction-btn").forEach((btn) => {
+    btn.addEventListener("click", () => chooseReaction(btn.dataset.r));
+  });
+
   document.addEventListener("keydown", (e) => {
     const openModal = $$(".modal").find((m) => !m.classList.contains("hidden"));
     if (e.key === "Escape" && openModal) {
@@ -1420,6 +1634,11 @@ function bindEvents() {
     }
     if (openModal) return;
     if (!$("#screen-game").classList.contains("is-active")) return;
+    if (reactionResolve) {
+      const pick = { "1": "clap", "2": "eye", "3": "slam" }[e.key];
+      if (pick) { e.preventDefault(); chooseReaction(pick); }
+      return;
+    }
     if (state.busy || state.over) return;
     const n = parseInt(e.key, 10);
     if (n >= 1 && n <= ACTIONS.length) {
@@ -1434,7 +1653,8 @@ function bindEvents() {
 ============================================================ */
 function init() {
   $("#title-portrait").innerHTML = portraitSVG("calm");
-  setPortrait("calm");
+  setFace("calm");
+  Object.keys(FACES).forEach((k) => { const im = new Image(); im.src = FACES[k].src; });
   bindEvents();
   updateGalleryCount();
   render();
